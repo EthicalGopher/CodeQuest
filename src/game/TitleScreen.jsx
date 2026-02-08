@@ -14,6 +14,38 @@ const TitleScreen= () => {
   const [showCharacterCreation, setShowCharacterCreation] = useState(false); // New state
 
   const { user: currentUser, loading: isLoading, error: authError } = useAuth();
+  const [isGameStartable, setIsGameStartable] = useState(false);
+  const [playerProfile, setPlayerProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchPlayerProfile = async () => {
+      if (currentUser) {
+        const { data, error } = await supabase
+          .from('player') // Corrected table name to 'player'
+          .select('sprite_sheet')
+          .eq('id', currentUser.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching player profile:', error);
+          setPlayerProfile(null);
+          setIsGameStartable(false);
+        } else if (data) {
+          setPlayerProfile(data);
+          // Check if sprite_sheet exists and is not an empty string
+          setIsGameStartable(!!data.sprite_sheet && data.sprite_sheet !== '');
+        } else {
+          setPlayerProfile(null);
+          setIsGameStartable(false);
+        }
+      } else {
+        setPlayerProfile(null);
+        setIsGameStartable(false);
+      }
+    };
+
+    fetchPlayerProfile();
+  }, [currentUser]);
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -89,9 +121,9 @@ const TitleScreen= () => {
                             <span className="text-3xl lg:text-4xl tracking-widest font-bold text-primary drop-shadow-[2px_2px_0px_#000]">LOADING...</span>
                         ) : currentUser ? (
                             <>
-                                <div 
-                                    onClick={() => navigate('/game', { state: { userId: currentUser.id, userSpriteSheet: currentUser.user_metadata?.sprite_sheet, selectedFrameIndex: currentUser.user_metadata?.selected_frame_index } })}
-                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200"
+                                <div
+                                    onClick={isGameStartable ? () => navigate('/game', { state: { userId: currentUser.id, userSpriteSheet: playerProfile?.sprite_sheet, selectedFrameIndex: currentUser.user_metadata?.selected_frame_index } }) : undefined}
+                                    className={`group flex items-center gap-6 transform transition-all duration-200 ${isGameStartable ? 'cursor-pointer hover:translate-x-4' : 'opacity-50 cursor-not-allowed'}`}
                                 >
                                     <div className="w-6 h-6 flex items-center justify-center">
                                         <div className="relative w-3 h-5 bg-primary shadow-[0_0_15px_#f2cc0d] animate-pulse" style={{ clipPath: 'polygon(50% 0%, 100% 40%, 80% 100%, 20% 100%, 0% 40%)' }}></div>
