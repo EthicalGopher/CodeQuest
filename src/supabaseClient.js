@@ -52,5 +52,27 @@ export async function getCurrentUser() {
   return user;
 }
 
+export async function upsertPlayerState(playerInfo) {
+  const { uuid, x, y, animation, direction, email, username, sprite_sheet, server_id = null } = playerInfo;
+  const { error } = await supabase.from('player').upsert({
+    id: uuid, // Map uuid from playerInfo to the 'id' column in the table
+    x,
+    y,
+    animation,
+    direction,
+    email,
+    username,
+    sprite_sheet,
+    server_id,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: 'id' }); // Conflict on 'id' column
+
+  if (error) {
+    console.error('Error upserting player state:', error);
+    throw error;
+  }
+}
+
+
 
 

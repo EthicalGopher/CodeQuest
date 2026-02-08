@@ -6,9 +6,8 @@ export class Preloader extends Scene
         super('Preloader');
     }
 
-     init ()
+    init ()
     {
-
         this.add.image(512, 384, 'background');
 
         this.add.rectangle(512, 384, 468, 32).setStrokeStyle(1, 0xffffff);
@@ -22,7 +21,7 @@ export class Preloader extends Scene
         });
     }
 
-     preload ()
+    async preload ()
     {
         const sheet = localStorage.getItem("sprite_sheet")
         this.load.setPath('assets');
@@ -31,6 +30,10 @@ export class Preloader extends Scene
             frameWidth: 64,
             frameHeight: 64
         });
+        this.load.spritesheet("player2","mc.png",{
+            frameWidth:64,
+            frameHeight:64
+        })
     }
 
     create ()

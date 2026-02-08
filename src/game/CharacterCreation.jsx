@@ -107,6 +107,7 @@ const fetchSpriteSheets = async () => {
         sprite_sheet: currentSprite,
       };
       localStorage.setItem("sprite_sheet",currentSprite)
+      localStorage.setItem("player_id",user.id)
 
       const { error: upsertError } = await supabase
         .from('player')
