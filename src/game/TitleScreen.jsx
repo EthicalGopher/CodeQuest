@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signUp, signInWithPassword, signInWithGoogle, getCurrentUser, signOut, supabase } from '../supabaseClient';
+import CharacterCreation from './CharacterCreation'; // New import
+import useAuth from '../hooks/useAuth'; // New import
 
 const TitleScreen= () => {
   const navigate = useNavigate();
@@ -9,35 +11,9 @@ const TitleScreen= () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [showCharacterCreation, setShowCharacterCreation] = useState(false); // New state
 
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const user = await getCurrentUser();
-        setCurrentUser(user);
-      } catch (error) {
-        console.error("Error checking session:", error);
-        setCurrentUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setCurrentUser(session?.user || null);
-        setIsLoading(false); // Ensure loading is off after any auth change
-      }
-    );
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []); // Run only once on mount
+  const { user: currentUser, loading: isLoading, error: authError } = useAuth();
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -114,7 +90,7 @@ const TitleScreen= () => {
                         ) : currentUser ? (
                             <>
                                 <div 
-                                    onClick={() => navigate('/game')}
+                                    onClick={() => navigate('/game', { state: { userId: currentUser.id, userSpriteSheet: currentUser.user_metadata?.sprite_sheet, selectedFrameIndex: currentUser.user_metadata?.selected_frame_index } })}
                                     className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200"
                                 >
                                     <div className="w-6 h-6 flex items-center justify-center">
@@ -126,9 +102,12 @@ const TitleScreen= () => {
                                     </div>
                                 </div>
     
-                                <div className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100">
+                                <div 
+                                    onClick={() => setShowCharacterCreation(true)}
+                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100"
+                                >
                                     <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-zinc-700 group-hover:bg-primary transition-all"></div></div>
-                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">CONTINUE</span>
+                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">CHARACTER</span>
                                 </div>
                                 
                                 <div className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100">
@@ -245,6 +224,11 @@ const TitleScreen= () => {
                             </div>
                         </div>
                     )}
+
+        {showCharacterCreation && (
+            <CharacterCreation onClose={() => setShowCharacterCreation(false)} currentUser={currentUser} />
+        )}
+
         <div className="absolute inset-0 scanlines opacity-30 pointer-events-none"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle,transparent_30%,rgba(0,0,0,0.9)_100%)] pointer-events-none"></div>
         

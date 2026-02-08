@@ -29,12 +29,13 @@ export class Preloader extends Scene
 
     preload ()
     {
+        const sheet = localStorage.getItem("sprite_sheet")
         //  Load the assets for the game - Replace with your own assets
         this.load.setPath('assets');
 
         this.load.image('logo', 'logo.png');
         this.load.image('star', 'star.png');
-        this.load.spritesheet('player', 'https://njjjtvmvdljdtnqupsns.supabase.co/storage/v1/object/public/spritsheet/sprite-1.png', {
+        this.load.spritesheet('player', sheet, {
             frameWidth: 64,
             frameHeight: 64
         });
