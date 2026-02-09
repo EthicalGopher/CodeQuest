@@ -12,8 +12,6 @@ export class PlayScene extends Phaser.Scene {
         this.lastPresenceUpdate = 0;
 
         this.playerId = localStorage.getItem('player_id');
-        this.spriteSheet = 'player';
-        console.log(this.spriteSheet)
         this.channel = null;
         this.isSubscribed = false;
     }
@@ -21,40 +19,70 @@ export class PlayScene extends Phaser.Scene {
     // =========================
     // CREATE
     // =========================
-    create() {
-        // Local player
-        this.player = this.physics.add.sprite(100, 500, this.spriteSheet, 0);
-        this.player.setCollideWorldBounds(true);
+async create() {
+    const profile = await this.fetchPlayerProfile();
+    if (!profile) return;
 
-        this.createAnimations();
-        this.player.play('idle-down');
+    this.serverId = profile.server_id;
+    this.spriteSheetUrl = profile.sprite_sheet;
+    this.spriteSheetKey = `player-${this.playerId}`;
 
-        // Input
-        this.keys = this.input.keyboard.addKeys({
-            up: 'W',
-            down: 'S',
-            left: 'A',
-            right: 'D'
-        });
+    // Load local spritesheet dynamically
+    if (!this.textures.exists(this.spriteSheetKey)) {
+        this.load.spritesheet(
+            this.spriteSheetKey,
+            this.spriteSheetUrl,
+            { frameWidth: 64, frameHeight: 64 }
+        );
 
-        // Multiplayer
-        this.setupPresence();
-
-        // Cleanup
-        this.events.on('shutdown', () => {
-            if (this.channel) {
-                supabase.removeChannel(this.channel);
-            }
-        });
+        this.load.once('complete', () => this.startGame());
+        this.load.start();
+    } else {
+        this.startGame();
     }
+}
+
+    startGame() {
+    this.player = this.physics.add.sprite(100, 500, this.spriteSheetKey, 0);
+    this.player.setCollideWorldBounds(true);
+
+    this.createAnimations(this.spriteSheetKey);
+    this.player.play(`idle-down-${this.spriteSheetKey}`);
+
+    this.keys = this.input.keyboard.addKeys({
+        up: 'W',
+        down: 'S',
+        left: 'A',
+        right: 'D'
+    });
+
+    this.setupPresence();
+}
+
+    async fetchPlayerProfile() {
+    const { data, error } = await supabase
+        .from('player')
+        .select('id, sprite_sheet, server_id')
+        .eq('id', this.playerId)
+        .single();
+
+    if (error) {
+        console.error('Failed to load player profile', error);
+        return null;
+    }
+
+    return data;
+}
+
 
     // =========================
     // PRESENCE
     // =========================
     setupPresence() {
-        this.channel = supabase.channel('game-room', {
+        this.channel = supabase.channel(`game-room-${this.serverId}`,{
             config: { presence: { key: this.playerId } }
         });
+        console.log(this.serverId)
 
         this.channel.on('presence', { event: 'sync' }, () => {
             const state = this.channel.presenceState();
@@ -86,9 +114,10 @@ export class PlayScene extends Phaser.Scene {
                     uuid: this.playerId,
                     x: this.player.x,
                     y: this.player.y,
-                    animation: 'idle-down',
+                    animation: `idle-down-${this.spriteSheetKey}`,
                     direction: this.lastDirection,
-                    sprite_sheet: this.spriteSheet
+                    sprite_sheet: this.spriteSheetUrl,
+                    server_id: this.serverId
                 });
             }
         });
@@ -98,120 +127,126 @@ export class PlayScene extends Phaser.Scene {
     // REMOTE PLAYERS
     // =========================
 upsertRemotePlayer(data) {
-    const sheet = data.sprite_sheet || 'player';
+    const textureKey = `player-${data.uuid}`;
+    const spriteUrl = data.sprite_sheet;
 
-    // 1️⃣ Texture not loaded yet → load it first
-    if (!this.textures.exists(sheet)) {
-        this.load.spritesheet(sheet, sheet, {
+    if (!spriteUrl) return;
+
+    // Load sprite sheet if missing
+    if (!this.textures.exists(textureKey)) {
+        this.load.spritesheet(textureKey, spriteUrl, {
             frameWidth: 64,
             frameHeight: 64
         });
 
         this.load.once('complete', () => {
-            this.createAnimations(sheet);
-            this.spawnOrUpdateRemote(data);
+            this.createAnimations(textureKey);
+            this.spawnOrUpdateRemote(data, textureKey);
         });
 
         this.load.start();
         return;
     }
 
-    // 2️⃣ Texture exists → safe to spawn/update
-    this.createAnimations(sheet);
-    this.spawnOrUpdateRemote(data);
+    this.spawnOrUpdateRemote(data, textureKey);
 }
-spawnOrUpdateRemote(data) {
+
+spawnOrUpdateRemote(data, textureKey) {
     let p = this.players[data.uuid];
 
     if (!p) {
         p = this.physics.add.sprite(
             data.x,
             data.y,
-            data.sprite_sheet,
+            textureKey,
             0
         );
 
-        p.targetX = data.x;
-        p.targetY = data.y;
         this.players[data.uuid] = p;
-    } else {
-        p.targetX = data.x;
-        p.targetY = data.y;
     }
 
-    if (data.animation) {
-        p.anims.play(data.animation, true);
-    }
+    p.targetX = data.x;
+    p.targetY = data.y;
+
+if (data.animation && this.anims.exists(data.animation)) {
+    p.anims.play(data.animation, true);
 }
+
+}
+
 
 
     // =========================
     // ANIMATIONS
     // =========================
-    createAnimations() {
-        if (this.anims.exists('idle-down')) return;
+createAnimations(textureKey) {
+    const anim = (name) => `${name}-${textureKey}`;
 
-        this.anims.create({
-            key: 'idle-down',
-            frames: this.anims.generateFrameNumbers(this.spriteSheet, { frames: [26,27] }),
-            frameRate: 6,
-            repeat: -1
-        });
+    if (this.anims.exists(anim('idle-down'))) return;
 
-        this.anims.create({
-            key: 'walk-down',
-            frames: this.anims.generateFrameNumbers(this.spriteSheet, { frames: [130,131,132,133,134,135] }),
-            frameRate: 10,
-            repeat: -1
-        });
+    this.anims.create({
+        key: anim('idle-down'),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [26,27] }),
+        frameRate: 6,
+        repeat: -1
+    });
 
-        this.anims.create({
-            key: 'idle-up',
-            frames: this.anims.generateFrameNumbers(this.spriteSheet, { frames: [0,1] }),
-            frameRate: 6,
-            repeat: -1
-        });
+    this.anims.create({
+        key: anim('walk-down'),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [130,131,132,133,134,135] }),
+        frameRate: 10,
+        repeat: -1
+    });
 
-        this.anims.create({
-            key: 'walk-up',
-            frames: this.anims.generateFrameNumbers(this.spriteSheet, { frames: [108,109,110,111,112] }),
-            frameRate: 10,
-            repeat: -1
-        });
+    this.anims.create({
+        key: anim('idle-up'),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [0,1] }),
+        frameRate: 6,
+        repeat: -1
+    });
 
-        this.anims.create({
-            key: 'idle-left',
-            frames: this.anims.generateFrameNumbers(this.spriteSheet, { frames: [13,14] }),
-            frameRate: 6,
-            repeat: -1
-        });
+    this.anims.create({
+        key: anim('walk-up'),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [108,109,110,111,112] }),
+        frameRate: 10,
+        repeat: -1
+    });
 
-        this.anims.create({
-            key: 'walk-left',
-            frames: this.anims.generateFrameNumbers(this.spriteSheet, { frames: [120,121,123,124] }),
-            frameRate: 10,
-            repeat: -1
-        });
+    this.anims.create({
+        key: anim('idle-left'),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [13,14] }),
+        frameRate: 6,
+        repeat: -1
+    });
 
-        this.anims.create({
-            key: 'idle-right',
-            frames: this.anims.generateFrameNumbers(this.spriteSheet, { frames: [40,41] }),
-            frameRate: 6,
-            repeat: -1
-        });
+    this.anims.create({
+        key: anim('walk-left'),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [120,121,123,124] }),
+        frameRate: 10,
+        repeat: -1
+    });
 
-        this.anims.create({
-            key: 'walk-right',
-            frames: this.anims.generateFrameNumbers(this.spriteSheet, { frames: [143,144,145,146,147] }),
-            frameRate: 10,
-            repeat: -1
-        });
-    }
+    this.anims.create({
+        key: anim('idle-right'),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [40,41] }),
+        frameRate: 6,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: anim('walk-right'),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [143,144,145,146,147] }),
+        frameRate: 10,
+        repeat: -1
+    });
+}
+
 
     // =========================
     // UPDATE LOOP
     // =========================
     update(time) {
+         if (!this.player) return;
         const speed = 200;
         this.player.setVelocity(0);
 
@@ -235,10 +270,13 @@ spawnOrUpdateRemote(data) {
             moving = true;
         }
 
-        this.player.play(
-            moving ? `walk-${this.lastDirection}` : `idle-${this.lastDirection}`,
-            true
-        );
+this.player.play(
+    moving
+        ? `walk-${this.lastDirection}-${this.spriteSheetKey}`
+        : `idle-${this.lastDirection}-${this.spriteSheetKey}`,
+    true
+);
+
 
         // Presence sync (10/sec)
         if (this.isSubscribed && time - this.lastPresenceUpdate > 100) {
@@ -250,7 +288,8 @@ spawnOrUpdateRemote(data) {
                 y: Math.round(this.player.y),
                 animation: this.player.anims.currentAnim?.key,
                 direction: this.lastDirection,
-                sprite_sheet: this.spriteSheet
+                sprite_sheet: this.spriteSheetUrl,
+                server_id:this.serverId
             });
         }
 

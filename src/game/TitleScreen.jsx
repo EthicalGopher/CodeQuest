@@ -42,6 +42,7 @@ const TitleScreen= () => {
         setPlayerProfile(null);
         setIsGameStartable(false);
       }
+      (!localStorage.getItem("sprite_sheet"))&&setIsGameStartable(false)
     };
 
     fetchPlayerProfile();
