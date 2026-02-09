@@ -91,23 +91,11 @@ const TitleScreen= () => {
             <div className="relative h-screen w-full overflow-hidden flex items-center bg-[#0d0d14] font-pixel">
                 {/* Background with scanlines and atmospheric moon */}
                 <div className="absolute inset-0 z-0">
-                    <div className="absolute top-[10%] left-[60%] w-64 h-64 bg-soul-red rounded-none opacity-80" style={{ boxShadow: '0 0 80px 20px rgba(158, 18, 18, 0.4)', clipPath: 'polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%)' }}>
-                        <div className="absolute inset-0 opacity-20 bg-black" style={{ maskImage: 'repeating-linear-gradient(45deg, #000 0, #000 10px, transparent 10px, transparent 20px)' }}></div>
-                    </div>
-                    <div className="absolute inset-0 bg-cover bg-bottom opacity-40 mix-blend-multiply grayscale contrast-150" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAU1JRCYkHBwrJvDWuuUMCc9AvPtE2QAeo9--xqdie3OH3K3bzyP11fkPplCZynVM6nyu0kRuLRykpjJPWqW5zdhvujDlPLrvvMfpWfgXdfvM6ExvVQ6KQCaRXt31qOVdOsikNvHlAwnY-2pLmbVZLm-Nl70FLRbcELF2hrsULgwSa3MPUU8HiRZoEseR9oSuQ8uEimTZwk87COFm-zm1jqj23QWzaOoRINX4hPtr1xNFvkgqYyuC5UnBB2HxmVbovsw1GQfb3ceBQ')" }}></div>
+                   
+                    <div className="absolute inset-0 bg-cover bg-bottom " style={{ backgroundImage: "url('assets/0YOvI2IM_o.jpeg')" }}></div>
                 </div>
     
-                <div className="absolute inset-0 z-10 pointer-events-none flex items-end justify-center pb-20 opacity-30">
-                    <div className="flex gap-40">
-                        <div className="w-2 h-96 bg-black relative">
-                            <div className="absolute top-20 -left-10 w-20 h-1 bg-black rotate-[-30deg]"></div>
-                            <div className="absolute top-40 -right-10 w-16 h-1 bg-black rotate-[20deg]"></div>
-                        </div>
-                        <div className="w-3 h-[500px] bg-black relative">
-                            <div className="absolute top-10 -right-12 w-24 h-1 bg-black rotate-[15deg]"></div>
-                        </div>
-                    </div>
-                </div>
+                
     
                 <div className="relative z-30 w-full max-w-[1440px] mx-auto px-20 lg:px-40 flex flex-col justify-center h-full">
                     <div className="mb-16">
@@ -263,7 +251,6 @@ const TitleScreen= () => {
         )}
 
         <div className="absolute inset-0 scanlines opacity-30 pointer-events-none"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle,transparent_30%,rgba(0,0,0,0.9)_100%)] pointer-events-none"></div>
         
         <div className="absolute bottom-12 left-20 lg:left-40 right-20 lg:right-40 flex justify-between items-center text-xs tracking-widest font-pixel-body text-zinc-500 uppercase">
           <div className="flex items-center gap-8">
