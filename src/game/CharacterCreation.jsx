@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import useAuth from '../hooks/useAuth';
 
 const CharacterCreation = ({ onClose, currentUser }) => {
   const [spriteSheets, setSpriteSheets] = useState([]);
   const [currentSprite, setCurrentSprite] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const {user} = useAuth();
   const [currentFrameIndex, setCurrentFrameIndex] = useState(0); // New state for current frame
 
   const FRAME_WIDTH = 64;
@@ -22,52 +20,68 @@ const CharacterCreation = ({ onClose, currentUser }) => {
   ];
 
   useEffect(() => {
-const fetchSpriteSheets = async () => {
-  try {
-    setLoading(true);
-    const folderPath = 'public'; // Change to '' if files are in the root
+    const fetchSpriteSheets = async () => {
+      try {
+        setLoading(true);
+        const folderPath = 'public'; // Change to '' if files are in the root
 
-    // 1. List files in the folder
-    const { data: files, error: listError } = await supabase.storage
-      .from('spritsheet')
-      .list(folderPath);
+        // 1. List files in the folder
+        const { data: files, error: listError } = await supabase.storage
+          .from('spritsheet')
+          .list(folderPath);
 
-    if (listError) throw listError;
-    console.log('Files found:', files);
+        if (listError) throw listError;
+        console.log('Files found:', files);
 
-    // 2. Filter files
-    const spriteFiles = files.filter(f => 
-      f.name.startsWith('sprite-') && f.name.endsWith('.png')
-    );
+        // 2. Filter files
+        const spriteFiles = files.filter(f => 
+          f.name.startsWith('sprite-') && f.name.endsWith('.png')
+        );
 
-    if (spriteFiles.length === 0) {
-      setError('No valid sprite sheets found.');
-      return;
-    }
+        if (spriteFiles.length === 0) {
+          setError('No valid sprite sheets found.');
+          return;
+        }
 
-    // 3. Generate URLs (Including the folder path prefix)
-    const urls = spriteFiles.map(file => {
-      const fullPath = folderPath ? `${folderPath}/${file.name}` : file.name;
-      const { data: { publicUrl } } = supabase.storage
-        .from('spritsheet')
-        .getPublicUrl(fullPath);
-      return publicUrl;
-    });
+        // 3. Generate URLs (Including the folder path prefix)
+        const urls = spriteFiles.map(file => {
+          const fullPath = folderPath ? `${folderPath}/${file.name}` : file.name;
+          const { data: { publicUrl } } = supabase.storage
+            .from('spritsheet')
+            .getPublicUrl(fullPath);
+          return publicUrl;
+        });
 
-    setSpriteSheets(urls);
-    setCurrentSprite(urls[Math.floor(Math.random() * urls.length)]);
+        setSpriteSheets(urls);
 
-  } catch (err) {
-    console.error('Error:', err);
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+        // 4. Fetch current user's sprite from 'player' table
+        if (currentUser) {
+          const { data, error: playerError } = await supabase
+            .from('player')
+            .select('sprite_sheet')
+            .eq('id', currentUser.id)
+            .single();
 
+          if (data && data.sprite_sheet) {
+            setCurrentSprite(data.sprite_sheet);
+          } else {
+            // Default to a random one if no record exists
+            setCurrentSprite(urls[Math.floor(Math.random() * urls.length)]);
+          }
+        } else {
+          setCurrentSprite(urls[Math.floor(Math.random() * urls.length)]);
+        }
+
+      } catch (err) {
+        console.error('Error:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchSpriteSheets();
-  }, []);
+  }, [currentUser]);
 
   const randomizeSprite = () => {
     if (spriteSheets.length > 0) {
@@ -101,13 +115,14 @@ const fetchSpriteSheets = async () => {
     try {
       // Data to be saved in the 'player' table
       const playerData = {
-        id: user.id,
-        email:user.email,
-        username:user.user_metadata.full_name,
+        id: currentUser.id,
+        email: currentUser.email,
+        username: currentUser.user_metadata?.full_name,
+        avatar_url: currentUser.user_metadata?.avatar_url,
         sprite_sheet: currentSprite,
       };
-      localStorage.setItem("sprite_sheet",currentSprite)
-      localStorage.setItem("player_id",user.id)
+      localStorage.setItem("sprite_sheet", currentSprite)
+      localStorage.setItem("player_id", currentUser.id)
 
       const { error: upsertError } = await supabase
         .from('player')

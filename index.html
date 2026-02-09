@@ -3,9 +3,127 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="/src/style.css">
+
     <title>CodeQuest</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+        <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0d59f2",
+                        secondary: "#2dd4bf",
+                        accent: "#f43f5e",
+                        "terminal-green": "#22c55e",
+                        "background-light": "#f5f6f8",
+                        "background-dark": "#101622",
+                        "stone-dark": "#1a1c23",
+                        "stone-light": "#282e39"
+                    },
+                    fontFamily: {
+                        display: "Montserrat",
+                        pixel: ["VT323", "monospace"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        lg: "1rem",
+                        xl: "1.5rem",
+                        full: "9999px"
+                    },
+                    backgroundImage: {
+                        "grid-pattern": "linear-gradient(to right, #1f2937 1px, transparent 1px), linear-gradient(to bottom, #1f2937 1px, transparent 1px)"
+                    },
+                    animation: {
+                        "pulse-glow": "pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                        glitch: "glitch 1s linear infinite",
+                        "matrix-flow": "matrix-flow 20s linear infinite"
+                    },
+                    keyframes: {
+                        "pulse-glow": {
+                            "0%, 100%": { boxShadow: "0 0 5px #0d59f2" },
+                            "50%": { boxShadow: "0 0 15px #0d59f2, 0 0 5px #2dd4bf" }
+                        },
+                        glitch: {
+                            "2%, 64%": { transform: "translate(2px,0) skew(0deg)" },
+                            "4%, 60%": { transform: "translate(-2px,0) skew(0deg)" },
+                            "62%": { transform: "translate(0,0) skew(5deg)" }
+                        },
+                        "matrix-flow": {
+                            "0%": { backgroundPosition: "0% 0%" },
+                            "100%": { backgroundPosition: "0% 100%" }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111318;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #282e39;
+            border: 2px solid #111318;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0d59f2;
+        }
+        .scanlines {
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+        .neon-border {
+            position: relative;
+            border: 2px solid #282e39;
+            box-shadow: 0 0 5px rgba(13, 89, 242, 0.2);
+            transition: all 0.3s ease;
+        }
+        .neon-border:hover {
+            border-color: #0d59f2;
+            box-shadow: 0 0 15px rgba(13, 89, 242, 0.5);
+        }
+        .pixel-text {
+            font-family: 'VT323', monospace;
+        }
+        .image-pixelated {
+            image-rendering: pixelated;
+        }
+        .pixel-card {
+            image-rendering: pixelated;
+            border: 4px solid #000;
+            box-shadow: inset 0 0 0 1px #374151, 4px 4px 0 0 #000;
+        }
+        .pixel-button {
+            box-shadow: 0 4px 0 0 #000;
+            transition: transform 0.1s;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .pixel-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #000;
+        }
+        .character-frame {
+            background: repeating-conic-gradient(#000 0% 25%, #111827 0% 50%) 50% / 12px 12px;
+            border: 3px solid #0d59f2;
+        }
+    </style>
 </head>
 
 <body>

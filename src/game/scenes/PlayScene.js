@@ -29,18 +29,39 @@ async create() {
 
     // Load local spritesheet dynamically
     if (!this.textures.exists(this.spriteSheetKey)) {
-        this.load.spritesheet(
-            this.spriteSheetKey,
-            this.spriteSheetUrl,
-            { frameWidth: 64, frameHeight: 64 }
-        );
+        this.load.image(this.spriteSheetKey, this.spriteSheetUrl);
 
-        this.load.once('complete', () => this.startGame());
+        this.load.once('complete', () => {
+            this.generateManualFrames(this.spriteSheetKey);
+            this.startGame();
+        });
         this.load.start();
     } else {
         this.startGame();
     }
 }
+
+    generateManualFrames(textureKey) {
+        const texture = this.textures.get(textureKey);
+        const width = texture.getSourceImage().width;
+        const height = texture.getSourceImage().height;
+        const frameWidth = 64;
+        const frameHeight = 64;
+        const framesPerRow = 14; // Force 14 columns division
+
+        const rows = Math.floor(height / frameHeight);
+        const totalFrames = rows * framesPerRow;
+
+        for (let i = 0; i < totalFrames; i++) {
+            const x = (i % framesPerRow) * frameWidth;
+            const y = Math.floor(i / framesPerRow) * frameHeight;
+            
+            // Check if coordinates are within image bounds
+            if (x + frameWidth <= width && y + frameHeight <= height) {
+                texture.add(i, 0, x, y, frameWidth, frameHeight);
+            }
+        }
+    }
 
     startGame() {
     this.player = this.physics.add.sprite(100, 500, this.spriteSheetKey, 0);
@@ -134,12 +155,10 @@ upsertRemotePlayer(data) {
 
     // Load sprite sheet if missing
     if (!this.textures.exists(textureKey)) {
-        this.load.spritesheet(textureKey, spriteUrl, {
-            frameWidth: 64,
-            frameHeight: 64
-        });
+        this.load.image(textureKey, spriteUrl);
 
         this.load.once('complete', () => {
+            this.generateManualFrames(textureKey);
             this.createAnimations(textureKey);
             this.spawnOrUpdateRemote(data, textureKey);
         });
@@ -186,56 +205,55 @@ createAnimations(textureKey) {
 
     this.anims.create({
         key: anim('idle-down'),
-        frames: this.anims.generateFrameNumbers(textureKey, { frames: [26,27] }),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [337, 336] }),
         frameRate: 6,
         repeat: -1
     });
 
     this.anims.create({
         key: anim('walk-down'),
-        frames: this.anims.generateFrameNumbers(textureKey, { frames: [130,131,132,133,134,135] }),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [143, 144, 145, 146, 147, 148] }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create({
         key: anim('idle-up'),
-        frames: this.anims.generateFrameNumbers(textureKey, { frames: [0,1] }),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [308, 309] }),
         frameRate: 6,
         repeat: -1
     });
 
     this.anims.create({
         key: anim('walk-up'),
-        frames: this.anims.generateFrameNumbers(textureKey, { frames: [108,109,110,111,112] }),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [115, 116, 117, 118, 119, 120] }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create({
         key: anim('idle-left'),
-        frames: this.anims.generateFrameNumbers(textureKey, { frames: [13,14] }),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [322, 323] }),
         frameRate: 6,
         repeat: -1
     });
 
     this.anims.create({
         key: anim('walk-left'),
-        frames: this.anims.generateFrameNumbers(textureKey, { frames: [120,121,123,124] }),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [128, 129, 130, 131, 132, 134] }),
         frameRate: 10,
         repeat: -1
     });
 
     this.anims.create({
         key: anim('idle-right'),
-        frames: this.anims.generateFrameNumbers(textureKey, { frames: [40,41] }),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [350, 351] }),
         frameRate: 6,
         repeat: -1
     });
-
     this.anims.create({
         key: anim('walk-right'),
-        frames: this.anims.generateFrameNumbers(textureKey, { frames: [143,144,145,146,147] }),
+        frames: this.anims.generateFrameNumbers(textureKey, { frames: [157, 158, 159, 160, 161, 162]}),
         frameRate: 10,
         repeat: -1
     });
