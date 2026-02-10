@@ -71,7 +71,6 @@ const TitleScreen= () => {
                 if (user) {
                     console.log('User session active:', user);
                     console.log('localStorage after auth:', localStorage);
-                    navigate('/game'); // Proceed to game
                 } else {
                     setErrorMessage('Authentication successful, but no active session found. Please try logging in again.');
                 }
