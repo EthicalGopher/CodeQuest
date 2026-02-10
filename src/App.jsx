@@ -8,6 +8,8 @@ import CharacterEditor from './admin/dashboard/components/CharacterEditor';
 import AdminProtection from './admin/AdminProtection';
 import Unauthorized from './admin/Unauthorized';
 import "./style.css"
+import ServerList from './admin/dashboard/components/ServerList';
+import PlayerList from './admin/dashboard/components/PlayerList';
 const ModuleUnderConstuction = () => {
     return (
           <div className="flex flex-col items-center justify-center h-full text-slate-500">
@@ -54,7 +56,8 @@ export default function App() {
                         <Route index element={<AdminDashboard />} />
 
                         <Route path="home" element={<AdminDashboard />} />
-
+                        <Route path='servers' element={<ServerList/>}/>
+                        <Route path='players' element={<PlayerList/>}/>
                         <Route path="characters" element={<CharacterEditor />} />
                         <Route path="*" element={<ModuleUnderConstuction/>}/>
                     </Route>

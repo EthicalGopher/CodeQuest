@@ -17,6 +17,10 @@ const TitleScreen= () => {
   const [isGameStartable, setIsGameStartable] = useState(false);
   const [playerProfile, setPlayerProfile] = useState(null);
 
+  const [showServerJoin, setShowServerJoin] = useState(false);
+  const [serverCode, setServerCode] = useState('');
+  const [joinError, setJoinError] = useState('');
+
   useEffect(() => {
     const fetchPlayerProfile = async () => {
       if (currentUser) {
@@ -47,6 +51,110 @@ const TitleScreen= () => {
 
     fetchPlayerProfile();
   }, [currentUser]);
+
+  const joinServer = async (server) => {
+    try {
+        if (server.current >= server.max) {
+            throw new Error("Server is full!");
+        }
+
+        // 1. Update Player
+        const { error: playerError } = await supabase
+            .from('player')
+            .update({ server_id: server.id })
+            .eq('id', currentUser.id);
+
+        if (playerError) throw playerError;
+
+        // 2. Update Server (Fetch fresh, append, update)
+        const { data: freshServer, error: fetchError } = await supabase
+            .from('server')
+            .select('players, current')
+            .eq('id', server.id)
+            .single();
+        
+        if (fetchError) throw fetchError;
+
+        const updatedPlayers = [...(freshServer.players || []), currentUser.id];
+        // Deduplicate
+        const uniquePlayers = [...new Set(updatedPlayers)];
+
+        const { error: serverError } = await supabase
+            .from('server')
+            .update({ 
+                players: uniquePlayers,
+                current: uniquePlayers.length
+            })
+            .eq('id', server.id);
+
+        if (serverError) throw serverError;
+
+        navigate('/game', { state: { userId: currentUser.id, userSpriteSheet: playerProfile?.sprite_sheet, selectedFrameIndex: currentUser.user_metadata?.selected_frame_index } });
+
+    } catch (error) {
+        console.error("Join Error", error);
+        setJoinError(error.message);
+        alert("Failed to join: " + error.message);
+    }
+  };
+
+  const handleRandomJoin = async () => {
+    if (!isGameStartable) return;
+    
+    try {
+        // Fetch public, online servers
+        const { data: servers, error } = await supabase
+            .from('server')
+            .select('*')
+            .eq('types', 'public')
+            .eq('server_stutus', 'online'); // Note: schema typo 'server_stutus'
+        
+        if (error) throw error;
+        
+        const availableServers = servers.filter(s => s.current < s.max);
+
+        if (availableServers.length === 0) {
+            alert("No public servers available with open slots! Try creating one or join by code.");
+            return;
+        }
+
+        const randomServer = availableServers[Math.floor(Math.random() * availableServers.length)];
+        await joinServer(randomServer);
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to find a server.");
+    }
+  };
+
+  const handleCodeJoin = async (e) => {
+    e.preventDefault();
+    setJoinError('');
+    if (!serverCode) return;
+
+    try {
+        const { data, error } = await supabase
+            .from('server')
+            .select('*')
+            .eq('server_code', serverCode.trim())
+            .single();
+        
+        if (error || !data) {
+            setJoinError("Invalid Server Code");
+            return;
+        }
+
+        if (data.server_stutus !== 'online') {
+             setJoinError("Server is offline or in maintenance");
+             return;
+        }
+
+        await joinServer(data);
+
+    } catch (err) {
+        setJoinError(err.message);
+    }
+  };
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
@@ -110,7 +218,7 @@ const TitleScreen= () => {
                         ) : currentUser ? (
                             <>
                                 <div
-                                    onClick={isGameStartable ? () => navigate('/game', { state: { userId: currentUser.id, userSpriteSheet: playerProfile?.sprite_sheet, selectedFrameIndex: currentUser.user_metadata?.selected_frame_index } }) : undefined}
+                                    onClick={isGameStartable ? handleRandomJoin : undefined}
                                     className={`group flex items-center gap-6 transform transition-all duration-200 ${isGameStartable ? 'cursor-pointer hover:translate-x-4' : 'opacity-50 cursor-not-allowed'}`}
                                 >
                                     <div className="w-6 h-6 flex items-center justify-center">
@@ -130,9 +238,12 @@ const TitleScreen= () => {
                                     <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">CHARACTER</span>
                                 </div>
                                 
-                                <div className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100">
+                                <div 
+                                    onClick={() => { setShowServerJoin(true); setJoinError(''); setServerCode(''); }}
+                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100"
+                                >
                                     <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-zinc-700 group-hover:bg-primary transition-all"></div></div>
-                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">SETTINGS</span>
+                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">JOIN SERVER</span>
                                 </div>
     
                                 <div 
@@ -176,7 +287,7 @@ const TitleScreen= () => {
                                 
                                 <div className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100">
                                     <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-zinc-700 group-hover:bg-primary transition-all"></div></div>
-                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">SETTINGS</span>
+                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">JOIN SERVER</span>
                                 </div>
     
                                 <div 
@@ -238,6 +349,35 @@ const TitleScreen= () => {
                                 <button
                                     onClick={() => { setShowAuthForm(false); setErrorMessage(''); setEmail(''); setPassword(''); }}
                                     className="w-full text-zinc-400 mt-6 text-sm hover:underline"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {showServerJoin && (
+                        <div className="absolute inset-0 z-40 bg-black bg-opacity-75 flex items-center justify-center">
+                            <div className="bg-zinc-800 p-8 rounded-lg shadow-xl border border-primary-dark w-96 font-pixel-body">
+                                <h2 className="text-primary text-3xl mb-6 text-center">JOIN SERVER</h2>
+                                {joinError && <p className="text-red-500 text-sm mb-4 text-center">{joinError}</p>}
+                                <p className="text-zinc-400 text-sm mb-2 uppercase text-center tracking-widest">Enter Access Code</p>
+                                <input
+                                    type="text"
+                                    placeholder="CODE..."
+                                    value={serverCode}
+                                    onChange={(e) => setServerCode(e.target.value)}
+                                    className="w-full p-3 mb-6 bg-zinc-700 text-white border border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary uppercase text-center text-xl tracking-widest"
+                                />
+                                <button
+                                    onClick={handleCodeJoin}
+                                    className="w-full bg-primary text-black font-bold py-3 px-4 rounded hover:bg-yellow-400 transition-colors duration-200 uppercase tracking-widest"
+                                >
+                                    Connect
+                                </button>
+                                <button
+                                    onClick={() => { setShowServerJoin(false); setJoinError(''); setServerCode(''); }}
+                                    className="w-full text-zinc-400 mt-4 text-sm hover:underline"
                                 >
                                     Cancel
                                 </button>

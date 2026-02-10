@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: 'monitoring' },
+    { id: 'servers', label: 'Server List', icon: 'dns' },
+  { id: 'players', label: 'Players List', icon: 'manage_accounts' },
   { id: 'logs', label: 'User Logs', icon: 'group' },
   { id: 'quests', label: 'Quest Editor', icon: 'history_edu' },
   { id: 'map', label: 'World Map', icon: 'public' },
