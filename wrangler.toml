@@ -1,4 +1,4 @@
-name = "codequest2"
+name = "codequest"
 compatibility_date = "2026-02-08"
 compatibility_flags = ["nodejs_compat"]
 
