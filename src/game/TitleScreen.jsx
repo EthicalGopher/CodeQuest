@@ -195,11 +195,18 @@ const TitleScreen= () => {
         };
     
         return (
-            <div className="relative h-screen w-full overflow-hidden flex items-center bg-[#0d0d14] font-pixel">
-                {/* Background with scanlines and atmospheric moon */}
+            <div className="relative h-screen w-full overflow-hidden flex items-center  font-pixel">
+                {/* Background with video background */}
                 <div className="absolute inset-0 z-0">
-                   
-                    <div className="absolute inset-0 bg-cover bg-bottom " style={{ backgroundImage: "url('assets/0YOvI2IM_o.jpeg')" }}></div>
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="absolute inset-0 w-full h-full object-cover "
+                    >
+                        <source src="assets/bg.mp4" type="video/mp4" />
+                    </video>
                 </div>
     
                 
