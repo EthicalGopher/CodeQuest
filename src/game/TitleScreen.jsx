@@ -211,12 +211,9 @@ const TitleScreen= () => {
     
                 
     
-                <div className="relative z-30 w-full max-w-[1440px] mx-auto px-20 lg:px-40 flex flex-col justify-center h-full">
+                <div className="relative z-30 w-full max-w-[1440px] mx-auto px-20 lg:px-40 flex flex-col justify-center items-center h-full">
                     <div className="mb-16">
-                        <h2 className="text-primary tracking-[0.2em] text-lg font-pixel-body mb-4 opacity-70 uppercase">A PIXELATED SOULSLIKE ENGINE</h2>
-                        <h1 className="text-6xl lg:text-8xl font-pixel-heading tracking-tighter text-white drop-shadow-[4px_4px_0px_#000]">
-                            CODE<span className="text-primary">QUEST</span>
-                        </h1>
+                    <img src='assets/header.png' className='w-2xl'/>
                     </div>
     
                     <nav className="flex flex-col gap-6 items-start">
