@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { signUp, signInWithPassword, signInWithGoogle, getCurrentUser, signOut, supabase } from '../supabaseClient';
 import CharacterCreation from './CharacterCreation'; // New import
 import useAuth from '../hooks/useAuth'; // New import
-
+import ButtonBox from '../admin/dashboard/components/buttonbox';
+import { PiTrophy } from "react-icons/pi";
+import { BiSolidHelpCircle } from 'react-icons/bi';
+import { IoSettings } from 'react-icons/io5';
 const TitleScreen= () => {
   const navigate = useNavigate();
   const [showAuthForm, setShowAuthForm] = useState(false);
@@ -156,154 +159,152 @@ const TitleScreen= () => {
     }
   };
 
-  const handleAuthSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
+    const handleAuthSubmit = async (e) => {
+        e.preventDefault();
+        setErrorMessage('');
 
-    if (!email || !password) {
-      setErrorMessage('Please enter both email and password.');
-      return;
-    }
+        if (!email || !password) {
+            setErrorMessage('Please enter both email and password.');
+            return;
+        }
 
-            try {
-                if (isLogin) {
-                    await signInWithPassword(email, password);
-                    console.log('User logged in successfully.');
-                } else {
-                    await signUp(email, password);
-                    console.log('User signed up successfully.');
-                }
-    
-                // Verify JWT in localStorage
-                const user = await getCurrentUser();
-                if (user) {
-                    console.log('User session active:', user);
-                    console.log('localStorage after auth:', localStorage);
-                } else {
-                    setErrorMessage('Authentication successful, but no active session found. Please try logging in again.');
-                }
-                
-                // Reset form and hide
-                setEmail('');
-                setPassword('');
-                setShowAuthForm(false);
-    
-            } catch (error) {
-                console.error('Authentication error:', error);
-                setErrorMessage(error.message || 'An unexpected error occurred during authentication.');
+        try {
+            if (isLogin) {
+                await signInWithPassword(email, password);
+                console.log('User logged in successfully.');
+            } else {
+                await signUp(email, password);
+                console.log('User signed up successfully.');
             }
-        };
-    
-        return (
-            <div className="relative h-screen w-full overflow-hidden flex items-center  font-pixel">
-                {/* Background with video background */}
-                <div className="absolute inset-0 z-0">
-                    <video
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        className="absolute inset-0 w-full h-full object-cover "
-                    >
-                        <source src="assets/bg.mp4" type="video/mp4" />
-                    </video>
+
+            // Verify JWT in localStorage
+            const user = await getCurrentUser();
+            if (user) {
+                console.log('User session active:', user);
+                console.log('localStorage after auth:', localStorage);
+            } else {
+                setErrorMessage('Authentication successful, but no active session found. Please try logging in again.');
+            }
+
+            // Reset form and hide
+            setEmail('');
+            setPassword('');
+            setShowAuthForm(false);
+
+        } catch (error) {
+            console.error('Authentication error:', error);
+            setErrorMessage(error.message || 'An unexpected error occurred during authentication.');
+        }
+    };
+
+const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
+  <button
+    onClick={!disabled ? onClick : undefined}
+    className={`
+      group block p-0 border-none bg-transparent outline-none
+      transition-all duration-200
+      ${disabled ? "opacity-50 cursor-not-allowed" : "hover:scale-110 active:scale-95"}
+    `}
+  >
+    <div 
+      className="flex items-center justify-center "
+    >
+      <ButtonBox className={`text-7xl text-center font-bold text-white drop-shadow-[3px_3px_0px_#000] uppercase ${className}`}>
+        {text}
+      </ButtonBox>
+    </div>
+  </button>
+);
+
+    return (
+        <div className="relative h-screen w-full overflow-hidden flex items-center  font-pixel">
+            {/* Background with video background */}
+            <div className="absolute inset-0 z-0">
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover "
+                >
+                    <source src="assets/bg.mp4" type="video/mp4" />
+                </video>
+            </div>
+
+
+
+            <div className="relative z-30 w-full max-w-[1440px] mx-auto px-20 lg:px-40 flex flex-col justify-center items-center h-full">
+                <div className="absolute top-20 ">
+                    <img src='assets/header.png' className='w-2xl ' />
                 </div>
-    
-                
-    
-                <div className="relative z-30 w-full max-w-[1440px] mx-auto px-20 lg:px-40 flex flex-col justify-center items-center h-full">
-                    <div className="mb-16">
-                    <img src='assets/header.png' className='w-2xl'/>
+
+                <nav className="flex flex-col gap-2 items-center mt-40">
+                    {isLoading ? (
+                        <span className="text-3xl lg:text-4xl tracking-widest font-bold text-primary drop-shadow-[2px_2px_0px_#000]">LOADING...</span>
+                    ) : currentUser ? (
+                        <div className='md:flex '>
+                                <div>
+
+                            <MenuButton
+                                text="START"
+                                onClick={handleRandomJoin}
+                                disabled={!isGameStartable}
+                                className=""
+                                />
+
+                            <MenuButton
+                                text="CHARACTER"
+                                onClick={() => setShowCharacterCreation(true)}
+                                className=""
+                                />
+                                </div>
+                                <div>
+
+
+                            <MenuButton
+                                text="SERVER"
+                                onClick={() => { setShowServerJoin(true); setJoinError(''); setServerCode(''); }}
+                                className=""
+                                />
+
+                            <MenuButton
+                                text="LOGOUT"
+                                onClick={signOut}
+                                className=""
+                                />
+
+                                </div>
+                        </div>
+                    ) : (
+                        <>
+                            <MenuButton
+                                text="LOGIN"
+                                onClick={() => { setShowAuthForm(true); setIsLogin(true); setErrorMessage(''); }}
+                                className=""
+                            />
+
+                            <MenuButton
+                                text="SIGN UP"
+                                onClick={() => { setShowAuthForm(true); setIsLogin(false); setErrorMessage(''); }}
+                                className=""
+                            />
+
+
+                        </>
+                    )}
+                </nav>
+
+                <div className="absolute -bottom-7  flex items-center justify-center ">
+                    <div className="relative">
+                        <img src="assets/credit.png" className="w-[1900px] h-auto" />
+                        <div className="absolute inset-0 flex items-center justify-around px-12 text-white font-pixel text-4xl tracking-widest uppercase">
+                            <button className=" transition-colors cursor-pointer uppercase flex gap-4 "><span><IoSettings className='text-gray-200'/></span>Credits</button>
+                            <button className=" transition-colors cursor-pointer uppercase flex gap-4"><span><PiTrophy className='text-yellow-200'/></span>Achievements</button>
+                            <button className=" transition-colors cursor-pointer uppercase flex gap-4"><span><BiSolidHelpCircle className='text-blue-200'/></span>Help</button>
+                        </div>
                     </div>
-    
-                    <nav className="flex flex-col gap-6 items-start">
-                        {isLoading ? (
-                            <span className="text-3xl lg:text-4xl tracking-widest font-bold text-primary drop-shadow-[2px_2px_0px_#000]">LOADING...</span>
-                        ) : currentUser ? (
-                            <>
-                                <div
-                                    onClick={isGameStartable ? handleRandomJoin : undefined}
-                                    className={`group flex items-center gap-6 transform transition-all duration-200 ${isGameStartable ? 'cursor-pointer hover:translate-x-4' : 'opacity-50 cursor-not-allowed'}`}
-                                >
-                                    <div className="w-6 h-6 flex items-center justify-center">
-                                        <div className="relative w-3 h-5 bg-primary shadow-[0_0_15px_#f2cc0d] animate-pulse" style={{ clipPath: 'polygon(50% 0%, 100% 40%, 80% 100%, 20% 100%, 0% 40%)' }}></div>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-3xl lg:text-4xl tracking-widest font-bold text-primary drop-shadow-[2px_2px_0px_#000]">START GAME</span>
-                                        <div className="h-[2px] w-full bg-primary mt-1"></div>
-                                    </div>
-                                </div>
-    
-                                <div 
-                                    onClick={() => setShowCharacterCreation(true)}
-                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100"
-                                >
-                                    <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-zinc-700 group-hover:bg-primary transition-all"></div></div>
-                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">CHARACTER</span>
-                                </div>
-                                
-                                <div 
-                                    onClick={() => { setShowServerJoin(true); setJoinError(''); setServerCode(''); }}
-                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100"
-                                >
-                                    <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-zinc-700 group-hover:bg-primary transition-all"></div></div>
-                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">JOIN SERVER</span>
-                                </div>
-    
-                                <div 
-                                    onClick={signOut}
-                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100"
-                                >
-                                    <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-red-900 group-hover:bg-red-500 transition-all"></div></div>
-                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-red-500 drop-shadow-[2px_2px_0px_#000]">LOGOUT</span>
-                                </div>
-    
-                                <div 
-                                    onClick={() => window.close()}
-                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-40 hover:opacity-100 mt-4"
-                                >
-                                    <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-red-900 group-hover:bg-red-500 transition-all"></div></div>
-                                    <span className="text-2xl lg:text-3xl tracking-widest text-zinc-500 group-hover:text-red-500 drop-shadow-[2px_2px_0px_#000]">QUIT TO DESKTOP</span>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div
-                                    onClick={() => { setShowAuthForm(true); setIsLogin(true); setErrorMessage(''); }}
-                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200"
-                                >
-                                    <div className="w-6 h-6 flex items-center justify-center">
-                                        <div className="relative w-3 h-5 bg-primary shadow-[0_0_15px_#f2cc0d] animate-pulse" style={{ clipPath: 'polygon(50% 0%, 100% 40%, 80% 100%, 20% 100%, 0% 40%)' }}></div>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-3xl lg:text-4xl tracking-widest font-bold text-primary drop-shadow-[2px_2px_0px_#000]">LOGIN</span>
-                                        <div className="h-[2px] w-full bg-primary mt-1"></div>
-                                    </div>
-                                </div>
-    
-                                <div
-                                    onClick={() => { setShowAuthForm(true); setIsLogin(false); setErrorMessage(''); }}
-                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100"
-                                >
-                                    <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-zinc-700 group-hover:bg-primary transition-all"></div></div>
-                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">SIGN UP</span>
-                                </div>
-                                
-                                <div className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-60 hover:opacity-100">
-                                    <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-zinc-700 group-hover:bg-primary transition-all"></div></div>
-                                    <span className="text-3xl lg:text-4xl tracking-widest text-zinc-400 group-hover:text-primary drop-shadow-[2px_2px_0px_#000]">JOIN SERVER</span>
-                                </div>
-    
-                                <div 
-                                    onClick={() => window.close()}
-                                    className="group flex items-center gap-6 cursor-pointer transform hover:translate-x-4 transition-all duration-200 opacity-40 hover:opacity-100 mt-4"
-                                >
-                                    <div className="w-6 flex items-center justify-center"><div className="w-2 h-2 bg-red-900 group-hover:bg-red-500 transition-all"></div></div>
-                                    <span className="text-2xl lg:text-3xl tracking-widest text-zinc-500 group-hover:text-red-500 drop-shadow-[2px_2px_0px_#000]">QUIT TO DESKTOP</span>
-                                </div>
-                            </>
-                        )}
-                    </nav>
+                </div>
+
                     
                     {showAuthForm && (
                         <div className="absolute inset-0 z-40 bg-black bg-opacity-75 flex items-center justify-center">
@@ -395,25 +396,6 @@ const TitleScreen= () => {
 
         <div className="absolute inset-0 scanlines opacity-30 pointer-events-none"></div>
         
-        <div className="absolute bottom-12 left-20 lg:left-40 right-20 lg:right-40 flex justify-between items-center text-xs tracking-widest font-pixel-body text-zinc-500 uppercase">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-sm">terminal</span>
-              <span>BUILD_2024.0.1_16BIT</span>
-            </div>
-            <div>© 2024 PIXEL SOULS ARCHIVE</div>
-          </div>
-          <div className="flex gap-6">
-            <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-800">
-              <span className="text-white">W/S</span>
-              <span className="text-[8px] opacity-60">NAVIGATE</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-800">
-              <span className="text-white">ENTER</span>
-              <span className="text-[8px] opacity-60">EXECUTE</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
