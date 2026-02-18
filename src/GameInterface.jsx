@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { PhaserGame } from './PhaserGame';
+import SEO from './components/SEO';
 
 function GameInterface() {
     const phaserRef = useRef();
@@ -47,7 +48,13 @@ function GameInterface() {
     };
 
     return (
-        <div className="app ">
+        <>
+            <SEO 
+                title="Play Game"
+                description="Enter the world of CodeQuest and begin your adventure. Solve puzzles, level up, and become the ultimate champion."
+                keywords={['play game', 'online rpg', 'browser game', 'codequest gameplay']}
+            />
+            <div className="app ">
             <div className="hud flex gap-11 p-11 justify-center items-center fixed z-10">
                 <p>Level: {level}</p>
                 <p>XP: {xp}</p>
@@ -71,7 +78,8 @@ function GameInterface() {
                     <button onClick={runCode}>Run Code</button>
                 </div>
             )}
-        </div>
+            </div>
+        </>
     );
 }
 

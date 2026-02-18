@@ -103,7 +103,6 @@ async create() {
         this.channel = supabase.channel(`game-room-${this.serverId}`,{
             config: { presence: { key: this.playerId } }
         });
-        console.log(this.serverId)
 
         this.channel.on('presence', { event: 'sync' }, () => {
             const state = this.channel.presenceState();

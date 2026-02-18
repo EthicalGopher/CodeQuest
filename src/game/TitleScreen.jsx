@@ -7,6 +7,7 @@ import ButtonBox from '../admin/dashboard/components/buttonbox';
 import { PiTrophy } from "react-icons/pi";
 import { BiSolidHelpCircle } from 'react-icons/bi';
 import { IoSettings } from 'react-icons/io5';
+import SEO from '../components/SEO';
 const TitleScreen= () => {
   const navigate = useNavigate();
   const [showAuthForm, setShowAuthForm] = useState(false);
@@ -32,7 +33,8 @@ const TitleScreen= () => {
           .select('sprite_sheet')
           .eq('id', currentUser.id)
           .single();
-
+            localStorage.setItem("sprite_sheet",data.sprite_sheet)
+            localStorage.setItem("player_id",currentUser.id)
         if (error) {
           console.error('Error fetching player profile:', error);
           setPlayerProfile(null);
@@ -217,7 +219,13 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
 );
 
     return (
-        <div className="relative h-screen w-full overflow-hidden flex items-center font-pixel">
+        <>
+            <SEO 
+                title="Home"
+                description="Play CodeQuest - An epic RPG adventure game. Create your character, join servers, and embark on an unforgettable journey."
+                keywords={['rpg', 'online game', 'multiplayer', 'adventure game']}
+            />
+            <div className="relative h-screen w-full overflow-hidden flex items-center font-pixel">
             {/* Background with video background */}
             <div className="absolute inset-0 z-0">
                 <video
@@ -407,6 +415,7 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
         
       </div>
     </div>
+    </>
   );
 };
 

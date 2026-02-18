@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './dashboard/components/Navbar';
 import Sidebar from './dashboard/components/Sidebar';
+import SEO from '../components/SEO';
 
 const Layout = ({ currentView, onViewChange }) => {
   const [theme, setTheme] = useState(() => {
@@ -42,7 +43,14 @@ const Layout = ({ currentView, onViewChange }) => {
   };
 
   return (
-    <div className={`${theme} min-h-screen w-full`}>
+    <>
+      <SEO 
+        title="Admin Dashboard"
+        description="CodeQuest Admin Dashboard - Manage servers, players, and characters"
+        keywords={['admin', 'dashboard', 'management']}
+        noIndex={true}
+      />
+      <div className={`${theme} min-h-screen w-full`}>
       <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-200 font-display min-h-screen flex flex-col overflow-hidden relative selection:bg-primary selection:text-white transition-colors duration-300">
         {/* Background Effects */}
         <div className="fixed inset-0 z-0 opacity-10 dark:opacity-10 pointer-events-none" style={{ backgroundSize: '40px 40px', backgroundImage: 'linear-gradient(to right, #374151 1px, transparent 1px), linear-gradient(to bottom, #374151 1px, transparent 1px)' }}></div>
@@ -59,7 +67,8 @@ const Layout = ({ currentView, onViewChange }) => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
