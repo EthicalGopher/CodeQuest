@@ -202,14 +202,14 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
     onClick={!disabled ? onClick : undefined}
     className={`
       group block p-0 border-none bg-transparent outline-none
-      transition-all duration-200
+      transition-all duration-200 w-full md:w-auto
       ${disabled ? "opacity-50 cursor-not-allowed" : "hover:scale-110 active:scale-95"}
     `}
   >
     <div 
-      className="flex items-center justify-center "
+      className="flex items-center justify-center"
     >
-      <ButtonBox className={`text-7xl text-center font-bold text-white drop-shadow-[3px_3px_0px_#000] uppercase ${className}`}>
+      <ButtonBox className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center font-bold text-white drop-shadow-[3px_3px_0px_#000] uppercase ${className}`}>
         {text}
       </ButtonBox>
     </div>
@@ -217,7 +217,7 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
 );
 
     return (
-        <div className="relative h-screen w-full overflow-hidden flex items-center  font-pixel">
+        <div className="relative h-screen w-full overflow-hidden flex items-center font-pixel">
             {/* Background with video background */}
             <div className="absolute inset-0 z-0">
                 <video
@@ -225,7 +225,7 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
                     loop
                     muted
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover "
+                    className="absolute inset-0 w-full h-full object-cover"
                 >
                     <source src="assets/bg.mp4" type="video/mp4" />
                 </video>
@@ -233,17 +233,17 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
 
 
 
-            <div className="relative z-30 w-full max-w-[1440px] mx-auto px-20 lg:px-40 flex flex-col justify-center items-center h-full">
-                <div className="absolute top-20 ">
-                    <img src='assets/header.png' className='w-2xl ' />
+            <div className="relative z-30 w-full max-w-[1440px] mx-auto px-4 sm:px-10 md:px-20 lg:px-40 flex flex-col justify-center items-center h-full">
+                <div className="absolute top-20 sm:top-16 md:top-20 px-4 w-full flex justify-center">
+                    <img src='assets/header.png' className='w-full max-w-[300px] sm:max-w-md md:max-w-xl lg:max-w-2xl h-auto' />
                 </div>
 
-                <nav className="flex flex-col gap-2 items-center mt-40">
+                <nav className="flex flex-col gap-2 items-center mt-20 sm:mt-32 md:mt-40 w-full md:max-w-none">
                     {isLoading ? (
-                        <span className="text-3xl lg:text-4xl tracking-widest font-bold text-primary drop-shadow-[2px_2px_0px_#000]">LOADING...</span>
+                        <span className="text-2xl sm:text-3xl lg:text-4xl tracking-widest font-bold text-primary drop-shadow-[2px_2px_0px_#000]">LOADING...</span>
                     ) : currentUser ? (
-                        <div className='md:flex '>
-                                <div>
+                        <div className='flex flex-col md:flex-row gap-2 md:gap-4 w-full md:w-auto items-center'>
+                                <div className="flex flex-col gap-2 w-full md:w-auto items-center">
 
                             <MenuButton
                                 text="START"
@@ -258,7 +258,7 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
                                 className=""
                                 />
                                 </div>
-                                <div>
+                                <div className="flex flex-col gap-2 w-full md:w-auto items-center">
 
 
                             <MenuButton
@@ -276,7 +276,7 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
                                 </div>
                         </div>
                     ) : (
-                        <>
+                        <div className="flex flex-col gap-2 items-center w-full justify-center">
                             <MenuButton
                                 text="LOGIN"
                                 onClick={() => { setShowAuthForm(true); setIsLogin(true); setErrorMessage(''); }}
@@ -290,25 +290,34 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
                             />
 
 
-                        </>
+                        </div>
                     )}
                 </nav>
 
-                <div className="absolute -bottom-7  flex items-center justify-center ">
-                    <div className="relative">
-                        <img src="assets/credit.png" className="w-[1900px] h-auto" />
-                        <div className="absolute inset-0 flex items-center justify-around px-12 text-white font-pixel text-4xl tracking-widest uppercase">
-                            <button className=" transition-colors cursor-pointer uppercase flex gap-4 "><span><IoSettings className='text-gray-200'/></span>Credits</button>
-                            <button className=" transition-colors cursor-pointer uppercase flex gap-4"><span><PiTrophy className='text-yellow-200'/></span>Achievements</button>
-                            <button className=" transition-colors cursor-pointer uppercase flex gap-4"><span><BiSolidHelpCircle className='text-blue-200'/></span>Help</button>
+                <div className="absolute bottom-4 sm:bottom-0 left-0 right-0 hidden sm:flex items-center justify-center overflow-hidden">
+                    <div className="relative w-full max-w-[1920px]">
+                        <img src="assets/credit.png" className="w-full h-16 sm:h-20 md:h-24 lg:h-auto object-cover lg:object-contain" />
+                        <div className="absolute inset-0 flex items-center justify-around px-2 sm:px-6 md:px-12 text-white font-pixel text-[10px] sm:text-base md:text-2xl lg:text-4xl tracking-widest uppercase">
+                            <button className="transition-colors cursor-pointer uppercase flex items-center gap-1 sm:gap-2 md:gap-4">
+                                <IoSettings className='text-gray-200 text-sm sm:text-xl md:text-3xl'/>
+                                <span className="hidden sm:inline">Credits</span>
+                            </button>
+                            <button className="transition-colors cursor-pointer uppercase flex items-center gap-1 sm:gap-2 md:gap-4">
+                                <PiTrophy className='text-yellow-200 text-sm sm:text-xl md:text-3xl'/>
+                                <span className="hidden sm:inline">Achievements</span>
+                            </button>
+                            <button className="transition-colors cursor-pointer uppercase flex items-center gap-1 sm:gap-2 md:gap-4">
+                                <BiSolidHelpCircle className='text-blue-200 text-sm sm:text-xl md:text-3xl'/>
+                                <span className="hidden sm:inline">Help</span>
+                            </button>
                         </div>
                     </div>
                 </div>
 
                     
                     {showAuthForm && (
-                        <div className="absolute inset-0 z-40 bg-black bg-opacity-75 flex items-center justify-center">
-                            <div className="bg-zinc-800 p-8 rounded-lg shadow-xl border border-primary-dark w-96 font-pixel-body">
+                        <div className="absolute inset-0 z-40 bg-black bg-opacity-75 flex items-center justify-center p-4">
+                            <div className="bg-zinc-800 p-6 sm:p-8 rounded-lg shadow-xl border border-primary-dark w-full max-w-md font-pixel-body">
                                 <h2 className="text-primary text-3xl mb-6 text-center">{isLogin ? 'LOGIN' : 'SIGN UP'}</h2>
                                 {errorMessage && <p className="text-red-500 text-sm mb-4 text-center">{errorMessage}</p>}
                                 <input
@@ -362,8 +371,8 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
                     )}
 
                     {showServerJoin && (
-                        <div className="absolute inset-0 z-40 bg-black bg-opacity-75 flex items-center justify-center">
-                            <div className="bg-zinc-800 p-8 rounded-lg shadow-xl border border-primary-dark w-96 font-pixel-body">
+                        <div className="absolute inset-0 z-40 bg-black bg-opacity-75 flex items-center justify-center p-4">
+                            <div className="bg-zinc-800 p-6 sm:p-8 rounded-lg shadow-xl border border-primary-dark w-full max-w-md font-pixel-body">
                                 <h2 className="text-primary text-3xl mb-6 text-center">JOIN SERVER</h2>
                                 {joinError && <p className="text-red-500 text-sm mb-4 text-center">{joinError}</p>}
                                 <p className="text-zinc-400 text-sm mb-2 uppercase text-center tracking-widest">Enter Access Code</p>

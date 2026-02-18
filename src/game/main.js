@@ -14,7 +14,8 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        expandParent: true
+        expandParent: true,
+        forceOrientation: true
     },
     parent: 'game-container',
     backgroundColor: '#028af8',
