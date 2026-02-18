@@ -46,7 +46,7 @@ const Layout = ({ currentView, onViewChange }) => {
     <>
       <SEO 
         title="Admin Dashboard"
-        description="CodeQuest Admin Dashboard - Manage servers, players, and characters"
+        description="CodeQuest Pro Admin Dashboard - Manage servers, players, and characters"
         keywords={['admin', 'dashboard', 'management']}
         noIndex={true}
       />

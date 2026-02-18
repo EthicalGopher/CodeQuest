@@ -1,4 +1,4 @@
-# CODEQUEST
+# CodeQuest Pro
 
 A top-down JRPG-style game engine built with Phaser and React, featuring a Supabase-powered authentication system. This project serves as a template and starting point for creating rich, interactive web-based games.
 

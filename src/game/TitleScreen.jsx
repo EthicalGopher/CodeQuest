@@ -222,7 +222,7 @@ const MenuButton = ({ onClick, text, disabled = false, className = "" }) => (
         <>
             <SEO 
                 title="Home"
-                description="Play CodeQuest - An epic RPG adventure game. Create your character, join servers, and embark on an unforgettable journey."
+                description="Play CodeQuest Pro - An epic RPG adventure game. Create your character, join servers, and embark on an unforgettable journey."
                 keywords={['rpg', 'online game', 'multiplayer', 'adventure game']}
             />
             <div className="relative h-screen w-full overflow-hidden flex items-center font-pixel">

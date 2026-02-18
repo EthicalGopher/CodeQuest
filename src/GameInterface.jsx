@@ -51,8 +51,8 @@ function GameInterface() {
         <>
             <SEO 
                 title="Play Game"
-                description="Enter the world of CodeQuest and begin your adventure. Solve puzzles, level up, and become the ultimate champion."
-                keywords={['play game', 'online rpg', 'browser game', 'codequest gameplay']}
+                description="Enter the world of CodeQuest Pro and begin your adventure. Solve puzzles, level up, and become the ultimate champion."
+                keywords={['play game', 'online rpg', 'browser game', 'CodeQuest Pro gameplay']}
             />
             <div className="app ">
             <div className="hud flex gap-11 p-11 justify-center items-center fixed z-10">

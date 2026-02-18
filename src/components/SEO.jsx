@@ -11,7 +11,7 @@ export default function SEO({
   const siteName = 'CodeQuest';
   const defaultDescription = 'An epic RPG adventure game built with React and Phaser';
   const defaultKeywords = ['game', 'rpg', 'adventure', 'phaser', 'react', 'javascript'];
-  const siteUrl = 'https://codequest.game';
+  const siteUrl = 'https://codequestpro.in';
 
   const fullTitle = title ? `${title} | ${siteName}` : siteName;
   const metaDescription = description || defaultDescription;
