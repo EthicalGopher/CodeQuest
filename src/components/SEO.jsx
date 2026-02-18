@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { useHead } from '@unhead/react';
 
 export default function SEO({ 
   title, 
@@ -19,27 +19,27 @@ export default function SEO({
   const ogImageUrl = ogImage || `${siteUrl}/og-image.png`;
   const url = canonicalUrl || siteUrl;
 
-  return (
-    <Helmet>
-      <title>{fullTitle}</title>
-      <meta name="description" content={metaDescription} />
-      <meta name="keywords" content={metaKeywords} />
-      
-      {noIndex && <meta name="robots" content="noindex, nofollow" />}
-      
-      <link rel="canonical" href={url} />
-      
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={metaDescription} />
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content={url} />
-      <meta property="og:site_name" content={siteName} />
-      <meta property="og:image" content={ogImageUrl} />
-      
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={metaDescription} />
-      <meta name="twitter:image" content={ogImageUrl} />
-    </Helmet>
-  );
+  useHead({
+    title: fullTitle,
+    meta: [
+      { name: 'description', content: metaDescription },
+      { name: 'keywords', content: metaKeywords },
+      ...(noIndex ? [{ name: 'robots', content: 'noindex, nofollow' }] : []),
+      { property: 'og:title', content: fullTitle },
+      { property: 'og:description', content: metaDescription },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:url', content: url },
+      { property: 'og:site_name', content: siteName },
+      { property: 'og:image', content: ogImageUrl },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: fullTitle },
+      { name: 'twitter:description', content: metaDescription },
+      { name: 'twitter:image', content: ogImageUrl },
+    ],
+    link: [
+      { rel: 'canonical', href: url }
+    ]
+  });
+
+  return null;
 }
